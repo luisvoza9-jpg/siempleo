@@ -184,21 +184,21 @@
     <div class="search-container">
         <form class="filter-group" action="/" method="GET">
             <input type="text" name="q" placeholder="¿Qué buscas?" value="{{ busqueda if busqueda else '' }}">
+            
             <select name="pueblo">
                 <option value="">Todas las ciudades</option>
-                <option value="Mollet">Mollet del Vallès</option>
-                <option value="Granollers">Granollers</option>
-                <option value="Parets">Parets del Vallès</option>
-                <option value="Montmelo">Montmeló</option>
-                <option value="Franqueses">Les Franqueses</option>
-                <option value="Llagosta">La Llagosta</option>
+                {% for p in pueblos_menu %}
+                    <option value="{{ p }}" {% if p.lower() == pueblo_seleccionado.lower() %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
             </select>
+            
             <select name="sector">
                 <option value="">Todos los sectores</option>
-                <option value="Hosteleria">Hostelería</option>
-                <option value="Logistica">Logística</option>
-                <option value="Comercio">Comercio</option>
+                {% for s in sectores_menu %}
+                    <option value="{{ s }}" {% if s.lower() == sector_seleccionado.lower() %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
             </select>
+            
             <button type="submit" class="btn-search">🔍 Buscar</button>
         </form>
     </div>
