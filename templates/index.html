@@ -109,6 +109,13 @@
         .job-card h2 { margin: 0; color: var(--primary); font-size: 1.2rem; }
         .btn-view { background: #e5e7eb; color: #374151; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; }
 
+        /* --- NUEVO: ESTILO PAGINACIÓN --- */
+        .pagination { 
+            display: flex; justify-content: center; align-items: center; 
+            gap: 15px; margin-top: 25px; padding-bottom: 40px; 
+        }
+        .page-num { font-weight: bold; color: var(--primary); }
+
         /* --- KEYFRAMES --- */
         @keyframes spinAndScale {
             0% { transform: rotate(0deg) scale(1); }
@@ -205,6 +212,19 @@
                 <a href="/oferta/{{ oferta['slug'] }}" class="btn-view">Ver Detalles</a>
             </div>
             {% endfor %}
+
+            <div class="pagination">
+                {% if anterior %}
+                    <a href="{{ url_for('index', page=pagina-1, q=request.args.get('q', ''), pueblo=request.args.get('pueblo', ''), sector=request.args.get('sector', '')) }}" class="btn-view">Anterior</a>
+                {% endif %}
+                
+                <span class="page-num">Página {{ pagina }}</span>
+
+                {% if siguiente %}
+                    <a href="{{ url_for('index', page=pagina+1, q=request.args.get('q', ''), pueblo=request.args.get('pueblo', ''), sector=request.args.get('sector', '')) }}" class="btn-view">Siguiente</a>
+                {% endif %}
+            </div>
+
         {% else %}
             <p style="text-align: center; color: #666;">No hemos encontrado ofertas. ¡Prueba otra búsqueda!</p>
         {% endif %}
