@@ -1,0 +1,4 @@
+flask
+pandas
+gunicorn 
+duckduckgo_search
