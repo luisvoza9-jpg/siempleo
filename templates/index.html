@@ -13,7 +13,7 @@
             background: linear-gradient(-45deg, #1e3a8a, #3b82f6, #1e40af, #60a5fa);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
-            color: white; text-align: center; padding: 4rem 2rem; 
+            color: white; text-align: center; padding: 3rem 2rem; 
         }
         @keyframes gradient {
             0% { background-position: 0% 50%; }
@@ -21,7 +21,15 @@
             100% { background-position: 0% 50%; }
         }
 
-        .logo { font-size: 3.5rem; font-weight: 900; letter-spacing: -2px; margin: 0; }
+        /* Estilo para el logo imagen */
+        .logo-img {
+            height: 100px; /* Ajusta el tamaño a tu gusto */
+            width: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.2));
+        }
+
+        .logo { font-size: 3.5rem; font-weight: 900; letter-spacing: -2px; margin: 0; line-height: 1; }
         .logo span { color: var(--accent); }
 
         .search-container { 
@@ -29,6 +37,13 @@
             max-width: 900px; margin: -50px auto 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
         .filter-group { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; }
+        
+        /* Responsive para móviles */
+        @media (max-width: 768px) {
+            .filter-group { grid-template-columns: 1fr; }
+            .search-container { margin-top: 20px; width: 90%; }
+        }
+
         select, input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
         
         .btn-search { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
@@ -42,13 +57,15 @@
 <body>
 
     <div class="hero">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo Siempleo" class="logo-img">
+        
         <h1 class="logo">Si<span>empleo</span></h1>
         <p>Con Tu Trabajo Nunca Irás Cuesta Abajo</p>
     </div>
 
     <div class="search-container">
         <form class="filter-group" action="/" method="GET">
-            <input type="text" name="q" placeholder="Buscar cargo..." value="{{ busqueda }}">
+            <input type="text" name="q" placeholder="¿Qué buscas?" value="{{ busqueda if busqueda else '' }}">
             
             <select name="pueblo">
                 <option value="">Todas las ciudades</option>
@@ -65,20 +82,24 @@
                 <option value="Comercio">Comercio</option>
             </select>
 
-            <button type="submit" class="btn-search">🔍</button>
+            <button type="submit" class="btn-search">🔍 Buscar</button>
         </form>
     </div>
 
     <div class="container">
-        {% for oferta in ofertas %}
-        <div class="job-card">
-            <div>
-                <h2>{{ oferta['Titulo Oferta'] }}</h2>
-                <small>📍 {{ oferta['Localidad'] }} | 📅 {{ oferta['Fecha Captura'] }}</small>
+        {% if ofertas %}
+            {% for oferta in ofertas %}
+            <div class="job-card">
+                <div>
+                    <h2>{{ oferta['Titulo Oferta'] }}</h2>
+                    <small>📍 {{ oferta['Localidad'] }} | 📅 {{ oferta['Fecha Captura'] }}</small>
+                </div>
+                <a href="/oferta/{{ oferta['slug'] }}" class="btn-view">Ver Detalles</a>
             </div>
-            <a href="/oferta/{{ oferta['slug'] }}" class="btn-view">Ver Detalles</a>
-        </div>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: #666;">No hemos encontrado ofertas con esos filtros. ¡Prueba otra búsqueda!</p>
+        {% endif %}
     </div>
 
 </body>
