@@ -14,7 +14,6 @@ def crear_url_amigable(texto):
 
 def cargar_datos():
     try:
-        # Importante: Asegúrate de que el nombre del archivo coincida exactamente
         df = pd.read_csv("ofertas_clasificadas_valles.csv")
         df = df.fillna("No especificado")
         
@@ -40,6 +39,14 @@ def cargar_datos():
 def index():
     df = cargar_datos()
     
+    # --- LA MAGIA: SACAR LISTAS AUTOMÁTICAS PARA LOS MENÚS ---
+    pueblos_disponibles = []
+    sectores_disponibles = []
+    if not df.empty:
+        # Extrae los nombres únicos y los ordena alfabéticamente
+        pueblos_disponibles = sorted([str(p) for p in df['Localidad'].unique() if str(p) != 'nan' and str(p) != 'No especificado'])
+        sectores_disponibles = sorted([str(s) for s in df['Sector Padre'].unique() if str(s) != 'nan' and str(s) != 'No especificado'])
+    
     # Filtros desde la web
     q = request.args.get('q', '').lower()
     pueblo = request.args.get('pueblo', '').lower()
@@ -51,24 +58,18 @@ def index():
         if pueblo:
             df = df[df['Localidad'].str.lower().str.contains(pueblo)]
         if sector:
-            # Filtramos tanto en el Sector Padre como en el Puesto Específico
             df = df[df['Sector Padre'].str.lower().str.contains(sector) | 
                     df['Puesto Especifico'].str.lower().str.contains(sector)]
     
-    # Convertimos a lista de diccionarios
     todas_las_ofertas = df.to_dict(orient='records') if not df.empty else []
     
-    # --- LÓGICA DE PAGINACIÓN AÑADIDA AQUÍ ---
-    POR_PAGINA = 20 # Puedes cambiar esto si quieres mostrar más o menos por página
+    # Lógica de Paginación
+    POR_PAGINA = 20 
     pagina = request.args.get('page', 1, type=int)
-    
     inicio = (pagina - 1) * POR_PAGINA
     fin = inicio + POR_PAGINA
-    
-    # Cortamos la lista para mostrar solo las de esta página
     ofertas_paginadas = todas_las_ofertas[inicio:fin]
     
-    # Comprobamos si hay páginas antes o después
     tiene_siguiente = len(todas_las_ofertas) > fin
     tiene_anterior = pagina > 1
 
@@ -77,7 +78,12 @@ def index():
                            busqueda=q,
                            pagina=pagina,
                            siguiente=tiene_siguiente,
-                           anterior=tiene_anterior)
+                           anterior=tiene_anterior,
+                           # Pasamos nuestras nuevas listas automáticas al HTML
+                           pueblos_menu=pueblos_disponibles,
+                           sectores_menu=sectores_disponibles,
+                           pueblo_seleccionado=request.args.get('pueblo', ''),
+                           sector_seleccionado=request.args.get('sector', ''))
 
 @app.route("/oferta/<slug>")
 def oferta_individual(slug):
@@ -91,7 +97,6 @@ def oferta_individual(slug):
     datos_oferta = oferta_encontrada.iloc[0].to_dict()
     return render_template("oferta.html", oferta=datos_oferta)
 
-# CONFIGURACIÓN PARA RENDER/INTERNET
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
