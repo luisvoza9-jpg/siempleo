@@ -256,6 +256,14 @@
             toggleMenu();
         }
     </script>
+          <script>
+        // Registramos el Service Worker para que el móvil reconozca la App
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}")
+            .then(() => console.log("¡App lista para instalar!"));
+        }
+    </script>
+
 </body>
 </html>
 
