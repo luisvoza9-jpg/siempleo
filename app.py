@@ -55,8 +55,29 @@ def index():
             df = df[df['Sector Padre'].str.lower().str.contains(sector) | 
                     df['Puesto Especifico'].str.lower().str.contains(sector)]
     
-    ofertas = df.to_dict(orient='records') if not df.empty else []
-    return render_template("index.html", ofertas=ofertas, busqueda=q)
+    # Convertimos a lista de diccionarios
+    todas_las_ofertas = df.to_dict(orient='records') if not df.empty else []
+    
+    # --- LÓGICA DE PAGINACIÓN AÑADIDA AQUÍ ---
+    POR_PAGINA = 20 # Puedes cambiar esto si quieres mostrar más o menos por página
+    pagina = request.args.get('page', 1, type=int)
+    
+    inicio = (pagina - 1) * POR_PAGINA
+    fin = inicio + POR_PAGINA
+    
+    # Cortamos la lista para mostrar solo las de esta página
+    ofertas_paginadas = todas_las_ofertas[inicio:fin]
+    
+    # Comprobamos si hay páginas antes o después
+    tiene_siguiente = len(todas_las_ofertas) > fin
+    tiene_anterior = pagina > 1
+
+    return render_template("index.html", 
+                           ofertas=ofertas_paginadas, 
+                           busqueda=q,
+                           pagina=pagina,
+                           siguiente=tiene_siguiente,
+                           anterior=tiene_anterior)
 
 @app.route("/oferta/<slug>")
 def oferta_individual(slug):
@@ -74,5 +95,4 @@ def oferta_individual(slug):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
 
